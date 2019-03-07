@@ -2,6 +2,7 @@
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
 	<mime-type type="application/x-xoj">
 		<comment>Xournal note file</comment>
+		<icon name="xoj"/>
 		<glob pattern="*.xoj"/>
 	</mime-type>
 </mime-info>
