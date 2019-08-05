@@ -1,11 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(configure.in)
-AM_INIT_AUTOMAKE(xournal, 0.4.8.2016)
-AC_CONFIG_HEADERS(config.h)
-AM_MAINTAINER_MODE
+AC_INIT([xournal],[0.4.8.2016])
+AC_CONFIG_SRCDIR([src/xournal.h])
+AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_HEADERS([config.h])
 
-AC_ISC_POSIX
+AC_SEARCH_LIBS([strerror],[cposix])
 AC_PROG_CC
 AC_PROG_RANLIB
 AM_PROG_AR
@@ -41,10 +41,11 @@ dnl Add the languages which your application supports here.
 ALL_LINGUAS="`grep -v '^#' "$srcdir/po/LINGUAS" | tr '\n' ' '`"
 AM_GLIB_GNU_GETTEXT
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 src/Makefile
 src/ttsubset/Makefile
 po/Makefile.in
 ])
+AC_OUTPUT
 
