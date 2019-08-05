@@ -1,2 +1,0 @@
-shlibs:Depends=libart-2.0-2 (>= 2.3.17), libatk1.0-0 (>= 1.12.4), libc6 (>= 2.7), libcairo2 (>= 1.2.4), libfontconfig1 (>= 2.9.0), libfreetype6 (>= 2.2.1), libgdk-pixbuf2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.35.9), libgnomecanvas2-0 (>= 2.11.1), libgtk2.0-0 (>= 2.10.0), libpango1.0-0 (>= 1.14.0), libpoppler-glib8 (>= 0.18.0), libx11-6, zlib1g (>= 1:1.2.0)
-misc:Depends=
