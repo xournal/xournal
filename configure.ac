@@ -5,19 +5,21 @@ AC_CONFIG_SRCDIR([src/xournal.h])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS([config.h])
 
-AC_SEARCH_LIBS([strerror],[cposix])
+IT_PROG_INTLTOOL
+
 AC_PROG_CC
 AC_PROG_RANLIB
 AM_PROG_AR
 AC_HEADER_STDC
 
-AC_SEARCH_LIBS([atan2], [m])
-AC_SEARCH_LIBS([hypot], [m])
-AC_SEARCH_LIBS([gzprintf], [z])
-AC_SEARCH_LIBS([XUngrabButton], [X11])
+AC_SEARCH_LIBS([strerror],[cposix])
+AC_SEARCH_LIBS([atan2],[m])
+AC_SEARCH_LIBS([hypot],[m])
+AC_SEARCH_LIBS([gzprintf],[z])
+AC_SEARCH_LIBS([XUngrabButton],[X11])
 
 pkg_modules="gtk+-2.0 >= 2.10.0 libgnomecanvas-2.0 >= 2.4.0 poppler-glib >= 0.5.4 pangoft2 >= 1.0"
-PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
+PKG_CHECK_MODULES(PACKAGE,[$pkg_modules])
 CFLAGS="$PACKAGE_CFLAGS $CFLAGS"
 LIBS="$PACKAGE_LIBS $LIBS"
 
