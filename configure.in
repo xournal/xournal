@@ -11,12 +11,15 @@ AC_PROG_RANLIB
 AM_PROG_AR
 AC_HEADER_STDC
 
-LDFLAGS="$LDFLAGS -lz -lm"
+AC_SEARCH_LIBS([atan2], [m])
+AC_SEARCH_LIBS([hypot], [m])
+AC_SEARCH_LIBS([gzprintf], [z])
+AC_SEARCH_LIBS([XUngrabButton], [X11])
 
 pkg_modules="gtk+-2.0 >= 2.10.0 libgnomecanvas-2.0 >= 2.4.0 poppler-glib >= 0.5.4 pangoft2 >= 1.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
-AC_SUBST(PACKAGE_CFLAGS)
-AC_SUBST(PACKAGE_LIBS)
+CFLAGS="$PACKAGE_CFLAGS $CFLAGS"
+LIBS="$PACKAGE_LIBS $LIBS"
 
 dnl detect Windows environment...
 AC_CANONICAL_HOST
@@ -29,15 +32,6 @@ case "$host" in
 esac
 AC_MSG_RESULT([$os_win32])
 AM_CONDITIONAL(WIN32, test "$os_win32" = "yes")
-
-dnl test for Linux, so we can add -lX11 manually for broken distributions
-case "$host" in
- *-*-linux*)
-   os_linux=yes;;
- *)
-   os_linux=no;;
-esac
-AM_CONDITIONAL(LINUX, test "$os_linux" = "yes")
 
 GETTEXT_PACKAGE=xournal
 AC_SUBST(GETTEXT_PACKAGE)

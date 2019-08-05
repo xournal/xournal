@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 AM_CPPFLAGS = \
-	$(PACKAGE_CFLAGS) -DNO_MAPPERS -DNO_TYPE3 -DNO_TYPE42
+	$(CFLAGS) -DNO_MAPPERS -DNO_TYPE3 -DNO_TYPE42
 
 noinst_LIBRARIES = libttsubset.a
 
