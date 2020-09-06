@@ -629,6 +629,10 @@ void start_text(GdkEvent *event, struct Item *item)
   gtk_widget_modify_font(item->widget, font_desc);
   rgb_to_gdkcolor(item->brush.color_rgba, &color);
   gtk_widget_modify_text(item->widget, GTK_STATE_NORMAL, &color);
+  if (ui.cur_page->bg->type == BG_SOLID) {
+    rgb_to_gdkcolor(ui.cur_page->bg->color_rgba, &color);
+    gtk_widget_modify_base(item->widget, GTK_STATE_NORMAL, &color);
+  }
   pango_font_description_free(font_desc);
 
   canvas_item = gnome_canvas_item_new(ui.cur_layer->group,
