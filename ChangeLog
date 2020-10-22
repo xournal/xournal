@@ -5,6 +5,7 @@ This version:
       wacom driver fix is committed).
   - added Russian translation (Igor Nedoboy)
   - selection resize snaps to preserve aspect ratio
+  - text edition box background color matches paper if page has a solid background
 
 Version 0.4.8.2016 (July 20, 2017 bugfix release):
  * Bug fixes:
