@@ -6,6 +6,7 @@ This version:
   - added Russian translation (Igor Nedoboy)
   - selection resize snaps to preserve aspect ratio
   - text edition box background color matches paper if page has a solid background
+  - control+mousewheel scrolls in/out (only if XInput option enabled)
 
 Version 0.4.8.2016 (July 20, 2017 bugfix release):
  * Bug fixes:

@@ -2433,10 +2433,21 @@ on_canvas_button_press_event           (GtkWidget       *widget,
       scroll_event.scroll.device = event->device;
       scroll_event.scroll.x_root = event->x_root;
       scroll_event.scroll.y_root = event->y_root;
+      // scroll direction
       if (event->button == 4) scroll_event.scroll.direction = GDK_SCROLL_UP;
       else if (event->button == 5) scroll_event.scroll.direction = GDK_SCROLL_DOWN;
       else if (event->button == 6) scroll_event.scroll.direction = GDK_SCROLL_LEFT;
       else scroll_event.scroll.direction = GDK_SCROLL_RIGHT;
+      // control-mousewheel should zoom; standard zoom step factor is too steep
+      if (event->state & GDK_CONTROL_MASK) {
+        if (event->button == 4 && ui.zoom < MAX_ZOOM) ui.zoom *= 1.1;
+        if (event->button == 5 && ui.zoom > MIN_ZOOM) ui.zoom /= 1.1;
+        gnome_canvas_set_pixels_per_unit(canvas, ui.zoom);
+        rescale_text_items();
+        rescale_bg_pixmaps();
+        rescale_images();
+        return FALSE;
+      }
       gtk_widget_event(GET_COMPONENT("scrolledwindowMain"), &scroll_event);
     }
     return FALSE;
