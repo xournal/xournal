@@ -33,7 +33,7 @@
  *
  */
 
-/* $Id$ */
+/* $Id: sft.c,v 1.9 2005/01/04 20:10:46 jody Exp $ */
 /* @(#)sft.c 1.17 03/01/08 SMI */
 
 /*
@@ -42,6 +42,10 @@
  * @author Alexander Gelfenbain <adg@sun.com>
  * @version 1.0
  */
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <assert.h>
 #include <stdlib.h>

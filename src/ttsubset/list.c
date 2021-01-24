@@ -33,7 +33,7 @@
  *
  */
 
-/* $Id$ */
+/* $Id: list.c,v 1.4 2004/09/10 18:59:06 jody Exp $ */
 /* @(#)list.c 1.7 03/02/06 SMI */
 
 /*
@@ -43,6 +43,10 @@
  * @version 1.0
  *
  */
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <stdlib.h>
 #include <assert.h>
