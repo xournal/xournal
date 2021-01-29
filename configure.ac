@@ -1,22 +1,27 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(configure.in)
-AM_INIT_AUTOMAKE(xournal, 0.4.8)
-AC_CONFIG_HEADERS(config.h)
-AM_MAINTAINER_MODE
+AC_INIT([xournal],[0.4.8.2016])
+AC_CONFIG_SRCDIR([src/xournal.h])
+AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_HEADERS([config.h])
 
-AC_ISC_POSIX
+IT_PROG_INTLTOOL
+
 AC_PROG_CC
 AC_PROG_RANLIB
 AM_PROG_AR
 AC_HEADER_STDC
 
-LDFLAGS="$LDFLAGS -lz -lm"
+AC_SEARCH_LIBS([strerror],[cposix])
+AC_SEARCH_LIBS([atan2],[m])
+AC_SEARCH_LIBS([hypot],[m])
+AC_SEARCH_LIBS([gzprintf],[z])
+AC_SEARCH_LIBS([XUngrabButton],[X11])
 
 pkg_modules="gtk+-2.0 >= 2.10.0 libgnomecanvas-2.0 >= 2.4.0 poppler-glib >= 0.5.4 pangoft2 >= 1.0"
-PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
-AC_SUBST(PACKAGE_CFLAGS)
-AC_SUBST(PACKAGE_LIBS)
+PKG_CHECK_MODULES(PACKAGE,[$pkg_modules])
+CFLAGS="$PACKAGE_CFLAGS $CFLAGS"
+LIBS="$PACKAGE_LIBS $LIBS"
 
 dnl detect Windows environment...
 AC_CANONICAL_HOST
@@ -30,15 +35,6 @@ esac
 AC_MSG_RESULT([$os_win32])
 AM_CONDITIONAL(WIN32, test "$os_win32" = "yes")
 
-dnl test for Linux, so we can add -lX11 manually for broken distributions
-case "$host" in
- *-*-linux*)
-   os_linux=yes;;
- *)
-   os_linux=no;;
-esac
-AM_CONDITIONAL(LINUX, test "$os_linux" = "yes")
-
 GETTEXT_PACKAGE=xournal
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
@@ -47,10 +43,11 @@ dnl Add the languages which your application supports here.
 ALL_LINGUAS="`grep -v '^#' "$srcdir/po/LINGUAS" | tr '\n' ' '`"
 AM_GLIB_GNU_GETTEXT
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 src/Makefile
 src/ttsubset/Makefile
 po/Makefile.in
 ])
+AC_OUTPUT
 
