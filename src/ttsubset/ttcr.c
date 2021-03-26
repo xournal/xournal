@@ -33,7 +33,7 @@
  *
  */
 
-/* $Id$ */
+/* $Id: ttcr.c,v 1.7 2005/01/04 20:10:46 jody Exp $ */
 /* @(#)ttcr.c 1.7 03/01/08 SMI */
 
 /*
@@ -45,8 +45,9 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#  include <config.h>
 #endif
+
 #include <sys/types.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
