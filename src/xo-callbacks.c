@@ -3771,8 +3771,24 @@ on_optionsPressureSensitive_activate   (GtkMenuItem     *menuitem,
   end_text();
   ui.pressure_sensitivity =
     gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem));
+  if (ui.pressure_sensitivity) ui.speed_sensitivity = FALSE;
   for (i=0; i<=NUM_BUTTONS; i++)
-    ui.brushes[i][TOOL_PEN].variable_width = ui.pressure_sensitivity;
+    ui.brushes[i][TOOL_PEN].variable_width = ui.pressure_sensitivity || ui.speed_sensitivity;
+  update_mappings_menu();
+}
+
+
+void
+on_optionsSpeedSensitive_activate      (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  int i;
+  end_text();
+  ui.speed_sensitivity =
+    gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM (menuitem));
+  if (ui.speed_sensitivity) ui.pressure_sensitivity = FALSE;
+  for (i=0; i<=NUM_BUTTONS; i++)
+    ui.brushes[i][TOOL_PEN].variable_width = ui.pressure_sensitivity || ui.speed_sensitivity;
   update_mappings_menu();
 }
 

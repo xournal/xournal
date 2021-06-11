@@ -1757,8 +1757,10 @@ void init_config_default(void)
   ui.default_font_name = g_strdup(DEFAULT_FONT);
   ui.default_font_size = DEFAULT_FONT_SIZE;
   ui.pressure_sensitivity = FALSE;
-  ui.width_minimum_multiplier = 0.0;
+  ui.speed_sensitivity = FALSE;
+  ui.width_minimum_multiplier = 0.40;
   ui.width_maximum_multiplier = 1.25;
+  ui.speed_min_width_threshold = 400.;
   ui.button_switch_mapping = FALSE;
   ui.autoload_pdf_xoj = FALSE;
   ui.autocreate_new_xoj = FALSE;
@@ -1943,12 +1945,18 @@ void save_config_to_file(void)
   update_keyval("general", "pressure_sensitivity",
      _(" use pressure sensitivity to control pen stroke width (true/false)"),
      g_strdup(ui.pressure_sensitivity?"true":"false"));
+  update_keyval("general", "speed_sensitivity",
+     _(" use pen speed to control pen stroke width (true/false)"),
+     g_strdup(ui.speed_sensitivity?"true":"false"));
   update_keyval("general", "width_minimum_multiplier",
-     _(" minimum width multiplier"),
+     _(" minimum width multiplier (don't set to zero, use 0.01 if needed instead)"),
      g_strdup_printf("%.2f", ui.width_minimum_multiplier));
   update_keyval("general", "width_maximum_multiplier",
      _(" maximum width multiplier"),
      g_strdup_printf("%.2f", ui.width_maximum_multiplier));
+  update_keyval("general", "speed_min_width_threshold",
+     _(" speed threshold for speed-sensitive stroke width to reach minimum"),
+     g_strdup_printf("%.1f", ui.speed_min_width_threshold));
   update_keyval("general", "interface_order",
     _(" interface components from top to bottom\n valid values: drawarea menu main_toolbar pen_toolbar statusbar"),
     verbose_vertical_order(ui.vertical_order[0]));
@@ -2352,8 +2360,10 @@ void load_config_from_file(void)
   parse_keyval_int("general", "autosave_delay", &ui.autosave_delay, 1, 3600);
   parse_keyval_string("general", "default_path", &ui.default_path);
   parse_keyval_boolean("general", "pressure_sensitivity", &ui.pressure_sensitivity);
-  parse_keyval_float("general", "width_minimum_multiplier", &ui.width_minimum_multiplier, 0., 10.);
-  parse_keyval_float("general", "width_maximum_multiplier", &ui.width_maximum_multiplier, 0., 10.);
+  parse_keyval_boolean("general", "speed_sensitivity", &ui.speed_sensitivity);
+  parse_keyval_float("general", "width_minimum_multiplier", &ui.width_minimum_multiplier, 0.0001, 10.);
+  parse_keyval_float("general", "width_maximum_multiplier", &ui.width_maximum_multiplier, 0.0001, 10.);
+  parse_keyval_float("general", "speed_min_width_threshold", &ui.speed_min_width_threshold, 1., 10000.);
 
   parse_keyval_vorderlist("general", "interface_order", ui.vertical_order[0]);
   parse_keyval_vorderlist("general", "interface_fullscreen", ui.vertical_order[1]);
