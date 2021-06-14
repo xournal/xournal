@@ -299,7 +299,7 @@ typedef struct UIData {
   double speed_min_width_threshold; // speed threshold for min width
   double *speed_refpt; // ref point for current speed calculation
   guint32 speed_reftime; // time of reference event for speed calculation
-  double speed_avg; // averaged speed of current stroke
+  double speed_avg, speed_last; // averaged & instant speed of current stroke
   gboolean is_corestroke; // this stroke is painted with core pointer
   gboolean saved_is_corestroke;
   GdkDevice *stroke_device; // who's painting this stroke

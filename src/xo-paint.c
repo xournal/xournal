@@ -247,7 +247,7 @@ void create_new_stroke(GdkEvent *event)
   if (ui.cur_brush->variable_width) {
     ui.speed_refpt = ui.cur_path.coords;
     ui.speed_reftime = gdk_event_get_time(event);
-    ui.speed_avg = 0.;
+    ui.speed_avg = ui.speed_last = 0.;
   }
 }
 
@@ -275,13 +275,13 @@ void continue_stroke(GdkEvent *event)
       if (event_time > ui.speed_reftime) /* don't recalculate speed until nonzero time has elapsed */
       {
         delta_time = event_time - ui.speed_reftime;
-        speed_now = hypot(pt[2]-ui.speed_refpt[0], pt[3]-ui.speed_refpt[1]) * 1000. / delta_time;
-        // 50 on the next two lines is the averaging time constant, in milliseconds
-        if (delta_time > 50 || ui.speed_refpt == ui.cur_path.coords) ui.speed_avg = speed_now;
-        else ui.speed_avg = (ui.speed_avg*(50-delta_time) + speed_now*delta_time) / 50.; // averaging
+        ui.speed_last = hypot(pt[2]-ui.speed_refpt[0], pt[3]-ui.speed_refpt[1]) * 1000. / delta_time;
         ui.speed_reftime = event_time; 
         ui.speed_refpt = pt+2;
       }
+      /* average last speed with running average, then calculate thickness multiplier */
+      if (ui.cur_path.num_points == 1) ui.speed_avg = ui.speed_last; // first point
+      else ui.speed_avg = 0.9*ui.speed_avg + 0.1*ui.speed_last;
       decay_constant = ui.width_maximum_multiplier/ui.width_minimum_multiplier - 1;
       if (ui.speed_avg > ui.speed_min_width_threshold) pressure = ui.width_minimum_multiplier;
       else pressure = ui.width_maximum_multiplier / (ui.speed_avg*decay_constant/ui.speed_min_width_threshold + 1.);
