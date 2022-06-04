@@ -243,12 +243,19 @@ void create_new_stroke(GdkEvent *event)
   } else
     ui.cur_item->canvas_item = gnome_canvas_item_new(
       ui.cur_layer->group, gnome_canvas_group_get_type(), NULL);
+      
+  if (ui.cur_brush->variable_width) {
+    ui.speed_refpt = ui.cur_path.coords;
+    ui.speed_reftime = gdk_event_get_time(event);
+    ui.speed_avg = ui.speed_last = 0.;
+  }
 }
 
 void continue_stroke(GdkEvent *event)
 {
   GnomeCanvasPoints seg;
-  double *pt, current_width, pressure;
+  double *pt, current_width, pressure, speed_now, decay_constant;
+  guint event_time, delta_time;
 
   if (ui.cur_brush->ruler) {
     pt = ui.cur_path.coords;
@@ -258,13 +265,32 @@ void continue_stroke(GdkEvent *event)
   } 
   
   get_pointer_coords(event, pt+2);
-  
+
   if (ui.cur_item->brush.variable_width) {
     realloc_cur_widths(ui.cur_path.num_points);
-    pressure = get_pressure_multiplier(event);
-    if (pressure > ui.width_minimum_multiplier) 
-      current_width = ui.cur_item->brush.thickness*get_pressure_multiplier(event);
-    else { // reported pressure is 0.
+    if (ui.cur_item->brush.ruler) pressure = 1.; // no variable width ruler
+    else if (ui.pressure_sensitivity) pressure = get_pressure_multiplier(event);
+    else { /* speed sensitivity */ 
+      event_time = gdk_event_get_time(event);
+      if (event_time > ui.speed_reftime) /* don't recalculate speed until nonzero time has elapsed */
+      {
+        delta_time = event_time - ui.speed_reftime;
+        ui.speed_last = hypot(pt[2]-ui.speed_refpt[0], pt[3]-ui.speed_refpt[1]) * 1000. / delta_time;
+        ui.speed_reftime = event_time; 
+        ui.speed_refpt = pt+2;
+      }
+      /* average last speed with running average, then calculate thickness multiplier */
+      if (ui.cur_path.num_points == 1) ui.speed_avg = ui.speed_last; // first point
+      else ui.speed_avg = 0.9*ui.speed_avg + 0.1*ui.speed_last;
+      decay_constant = ui.width_maximum_multiplier/ui.width_minimum_multiplier - 1;
+      if (ui.speed_avg > ui.speed_min_width_threshold) pressure = ui.width_minimum_multiplier;
+      else pressure = ui.width_maximum_multiplier / (ui.speed_avg*decay_constant/ui.speed_min_width_threshold + 1.);
+      // DEBUG printf("delta_time %d  speed_now %.1f  speed_avg %.1f  pressure multiplier %.2f\n", delta_time, speed_now, ui.speed_avg, pressure);
+    }
+    
+    if (pressure > 0.)
+      current_width = ui.cur_item->brush.thickness*pressure;
+    else { // reported pressure is 0. or other deficient calculation of multiplier
       if (ui.cur_path.num_points >= 2) current_width = ui.cur_widths[ui.cur_path.num_points-2];
       else current_width = ui.cur_item->brush.thickness;
     }
@@ -308,13 +334,44 @@ void abort_stroke(void)
   ui.cur_item_type = ITEM_NONE;
 }
 
+#define HOOK_MAX_ANGLE_COS 0.9
+
+gboolean fix_origin_if_needed(double *pt)
+{
+  double dotproduct,len1,len2;
+  dotproduct = (pt[2]-pt[0])*(pt[4]-pt[2]) + (pt[3]-pt[1])*(pt[5]-pt[3]);
+  len1 = hypot(pt[2]-pt[0],pt[3]-pt[1]);
+  len2 = hypot(pt[4]-pt[2],pt[5]-pt[3]);
+  if (dotproduct < HOOK_MAX_ANGLE_COS * len1 * len2) {
+    // straighten
+/*
+    if (dotproduct > 0 && len2 > EPSILON) {
+      pt[0] = pt[2]-dotproduct*(pt[4]-pt[2])/len2/len2;
+      pt[1] = pt[3]-dotproduct*(pt[5]-pt[3])/len2/len2;
+    } else */
+    {
+      pt[0] = pt[2];
+      pt[1] = pt[3];
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
+
 void finalize_stroke(void)
 {
+  gboolean need_refresh = FALSE;
+  
   if (ui.cur_path.num_points == 1) { // GnomeCanvas doesn't like num_points=1
     ui.cur_path.coords[2] = ui.cur_path.coords[0]+0.1;
     ui.cur_path.coords[3] = ui.cur_path.coords[1];
     ui.cur_path.num_points = 2;
     ui.cur_item->brush.variable_width = FALSE;
+  }
+  
+  /* fix AES pen mess on Lenovo X1 Yoga 2nd gen and similar... */
+  if (ui.fix_stroke_origin && ui.cur_path.num_points > 2) {
+    need_refresh = fix_origin_if_needed(ui.cur_path.coords);
   }
   
   if (!ui.cur_item->brush.variable_width)
@@ -330,7 +387,7 @@ void finalize_stroke(void)
   update_item_bbox(ui.cur_item);
   ui.cur_path.num_points = 0;
 
-  if (!ui.cur_item->brush.variable_width) {
+  if (!ui.cur_item->brush.variable_width || need_refresh) {
     // destroy the entire group of temporary line segments
     gtk_object_destroy(GTK_OBJECT(ui.cur_item->canvas_item));
     // make a new line item to replace it
@@ -598,6 +655,10 @@ void start_text(GdkEvent *event, struct Item *item)
   gtk_widget_modify_font(item->widget, font_desc);
   rgb_to_gdkcolor(item->brush.color_rgba, &color);
   gtk_widget_modify_text(item->widget, GTK_STATE_NORMAL, &color);
+  if (ui.cur_page->bg->type == BG_SOLID) {
+    rgb_to_gdkcolor(ui.cur_page->bg->color_rgba, &color);
+    gtk_widget_modify_base(item->widget, GTK_STATE_NORMAL, &color);
+  }
   pango_font_description_free(font_desc);
 
   canvas_item = gnome_canvas_item_new(ui.cur_layer->group,

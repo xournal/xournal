@@ -6,10 +6,10 @@ else
   SUBDIRS = ttsubset
 endif
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	@PACKAGE_CFLAGS@
+	$(CFLAGS)
 
 bin_PROGRAMS = xournal
 
@@ -27,14 +27,9 @@ xournal_SOURCES = \
 	xo-callbacks.c xo-callbacks.h \
 	xo-shapes.c xo-shapes.h
 
+xournal_LDADD = ttsubset/libttsubset.a
+
 if WIN32
   xournal_LDFLAGS = -mwindows
-  xournal_LDADD = win32/xournal.res ttsubset/libttsubset.a @PACKAGE_LIBS@ $(INTLLIBS) -lz
-else
-if LINUX
-  xournal_LDADD = ttsubset/libttsubset.a @PACKAGE_LIBS@ $(INTLLIBS) -lX11 -lz -lm
-else
-  xournal_LDADD = ttsubset/libttsubset.a @PACKAGE_LIBS@ $(INTLLIBS) -lz -lm
+  xournal_LDADD += win32/xournal.res $(PACKAGE_LIBS) $(INTLLIBS) -lz
 endif
-endif
-

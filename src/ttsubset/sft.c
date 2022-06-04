@@ -33,7 +33,7 @@
  *
  */
 
-/* $Id$ */
+/* $Id: sft.c,v 1.9 2005/01/04 20:10:46 jody Exp $ */
 /* @(#)sft.c 1.17 03/01/08 SMI */
 
 /*
@@ -43,8 +43,15 @@
  * @version 1.0
  */
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <string.h>
 #include <fcntl.h>
 #include "sft.h"
@@ -739,7 +746,7 @@ static int GetCompoundTTOutline(TrueTypeFont *ttf, guint32 glyphID, ControlPoint
         index = GetUInt16(ptr, 2, 1);
         ptr += 4;
 
-        if (listFind(glyphlist, (void *) (int) index)) {
+        if (listFind(glyphlist, (void *) (long) index)) {
 #ifdef DEBUG
             fprintf(stderr, "Endless loop found in a compound glyph.\n");
             fprintf(stderr, "%d -> ", index);
@@ -753,7 +760,7 @@ static int GetCompoundTTOutline(TrueTypeFont *ttf, guint32 glyphID, ControlPoint
 #endif
         }
 
-        listAppend(glyphlist, (void *) (int) index);
+        listAppend(glyphlist, (void *) (long) index);
 
 #ifdef DEBUG2
         fprintf(stderr,"glyphlist: += %d\n", index);
@@ -937,7 +944,7 @@ static int GetTTGlyphOutline(TrueTypeFont *ttf, guint32 glyphID, ControlPoint **
         if (!glyphlist) {
             glyphlistFlag = 1;
             glyphlist = listNewEmpty();
-            listAppend(glyphlist, (void *) glyphID);
+            listAppend(glyphlist, (void *) (long) glyphID);
         }
         res = GetCompoundTTOutline(ttf, glyphID, pointArray, metrics, glyphlist);
         if (glyphlistFlag) {
@@ -1844,7 +1851,7 @@ int GetTTGlyphComponents(TrueTypeFont *ttf, guint32 glyphID, list glyphlist)
     if (glyphID >= ttf->nglyphs) return 0;
     ptr = glyf + ttf->goffsets[glyphID];
 
-    listAppend(glyphlist, (void *) glyphID);
+    listAppend(glyphlist, (void *) (long) glyphID);
 
     if (GetInt16(ptr, 0, 1) == -1) {
         guint16 flags, index;

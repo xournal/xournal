@@ -354,6 +354,7 @@ gboolean autosave_cb(gpointer is_catchup)
   // keep track of old save filenames
   old_filenames = ui.autosave_filename_list;
   ui.autosave_filename_list = NULL;
+  ui.autosave_need_catchup = FALSE;
   if (save_journal(test_filename, TRUE)) { // non-interactive save -> success
     ui.need_autosave = FALSE; // no longer need an auto-save
     autosave_cleanup(&old_filenames);
@@ -1169,7 +1170,6 @@ gboolean open_journal(char *filename)
   ui.layerno = ui.cur_page->nlayers-1;
   ui.cur_layer = (struct Layer *)(g_list_last(ui.cur_page->layers)->data);
   ui.zoom = ui.startup_zoom;
-  update_file_name(g_strdup(filename));
   gnome_canvas_set_pixels_per_unit(canvas, ui.zoom);
   make_canvas_items();
   update_page_stuff();
@@ -1196,6 +1196,10 @@ gboolean open_journal(char *filename)
   }
   else ui.saved = TRUE;
 
+  update_file_name(g_strdup(filename)); /* postpone till now, as it
+     may corrupt the contents of filename if it was in MRU data -- updating the MRU
+     causes redundant MRU entries to get free()'d */
+     
   g_free(filename_actual);
   ui.need_autosave = !ui.saved;
   return TRUE;
@@ -1753,8 +1757,10 @@ void init_config_default(void)
   ui.default_font_name = g_strdup(DEFAULT_FONT);
   ui.default_font_size = DEFAULT_FONT_SIZE;
   ui.pressure_sensitivity = FALSE;
-  ui.width_minimum_multiplier = 0.0;
+  ui.speed_sensitivity = FALSE;
+  ui.width_minimum_multiplier = 0.40;
   ui.width_maximum_multiplier = 1.25;
+  ui.speed_min_width_threshold = 400.;
   ui.button_switch_mapping = FALSE;
   ui.autoload_pdf_xoj = FALSE;
   ui.autocreate_new_xoj = FALSE;
@@ -1764,9 +1770,10 @@ void init_config_default(void)
   ui.device_for_touch = g_strdup(DEFAULT_DEVICE_FOR_TOUCH);
   ui.autosave_enabled = FALSE;
   ui.autosave_filename_list = NULL;
-  ui.autosave_delay = 5;
+  ui.autosave_delay = 20;
   ui.autosave_loop_running = FALSE;
   ui.autosave_need_catchup = FALSE;
+  ui.fix_stroke_origin = FALSE;
   
   // the default UI vertical order
   ui.vertical_order[0][0] = 1; 
@@ -1917,6 +1924,9 @@ void save_config_to_file(void)
   update_keyval("general", "buttons_switch_mappings",
     _(" buttons 2 and 3 switch mappings instead of drawing (useful for some tablets) (true/false)"),
     g_strdup(ui.button_switch_mapping?"true":"false"));
+  update_keyval("general", "fix_stroke_origin",
+    _(" fix origin of strokes (devices with unreliable button press coordinates, e.g. Lenovo's AES pens) (true/false)"),
+    g_strdup(ui.fix_stroke_origin?"true":"false"));
   update_keyval("general", "autoload_pdf_xoj",
     _(" automatically load filename.pdf.xoj instead of filename.pdf (true/false)"),
     g_strdup(ui.autoload_pdf_xoj?"true":"false"));
@@ -1935,12 +1945,18 @@ void save_config_to_file(void)
   update_keyval("general", "pressure_sensitivity",
      _(" use pressure sensitivity to control pen stroke width (true/false)"),
      g_strdup(ui.pressure_sensitivity?"true":"false"));
+  update_keyval("general", "speed_sensitivity",
+     _(" use pen speed to control pen stroke width (true/false)"),
+     g_strdup(ui.speed_sensitivity?"true":"false"));
   update_keyval("general", "width_minimum_multiplier",
-     _(" minimum width multiplier"),
+     _(" minimum width multiplier (don't set to zero, use 0.01 if needed instead)"),
      g_strdup_printf("%.2f", ui.width_minimum_multiplier));
   update_keyval("general", "width_maximum_multiplier",
      _(" maximum width multiplier"),
      g_strdup_printf("%.2f", ui.width_maximum_multiplier));
+  update_keyval("general", "speed_min_width_threshold",
+     _(" speed threshold for speed-sensitive stroke width to reach minimum"),
+     g_strdup_printf("%.1f", ui.speed_min_width_threshold));
   update_keyval("general", "interface_order",
     _(" interface components from top to bottom\n valid values: drawarea menu main_toolbar pen_toolbar statusbar"),
     verbose_vertical_order(ui.vertical_order[0]));
@@ -2337,14 +2353,17 @@ void load_config_from_file(void)
   if (parse_keyval_string("general", "touchscreen_device_name", &str))
     if (str!=NULL) ui.device_for_touch = str;
   parse_keyval_boolean("general", "buttons_switch_mappings", &ui.button_switch_mapping);
+  parse_keyval_boolean("general", "fix_stroke_origin", &ui.fix_stroke_origin);
   parse_keyval_boolean("general", "autoload_pdf_xoj", &ui.autoload_pdf_xoj);
   parse_keyval_boolean("general", "autocreate_new_xoj", &ui.autocreate_new_xoj);
   parse_keyval_boolean("general", "autosave_enabled", &ui.autosave_enabled);
   parse_keyval_int("general", "autosave_delay", &ui.autosave_delay, 1, 3600);
   parse_keyval_string("general", "default_path", &ui.default_path);
   parse_keyval_boolean("general", "pressure_sensitivity", &ui.pressure_sensitivity);
-  parse_keyval_float("general", "width_minimum_multiplier", &ui.width_minimum_multiplier, 0., 10.);
-  parse_keyval_float("general", "width_maximum_multiplier", &ui.width_maximum_multiplier, 0., 10.);
+  parse_keyval_boolean("general", "speed_sensitivity", &ui.speed_sensitivity);
+  parse_keyval_float("general", "width_minimum_multiplier", &ui.width_minimum_multiplier, 0.0001, 10.);
+  parse_keyval_float("general", "width_maximum_multiplier", &ui.width_maximum_multiplier, 0.0001, 10.);
+  parse_keyval_float("general", "speed_min_width_threshold", &ui.speed_min_width_threshold, 1., 10000.);
 
   parse_keyval_vorderlist("general", "interface_order", ui.vertical_order[0]);
   parse_keyval_vorderlist("general", "interface_fullscreen", ui.vertical_order[1]);

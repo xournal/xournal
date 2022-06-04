@@ -61,7 +61,7 @@
 #define MAX_ZOOM 20.0
 #define DISPLAY_DPI_DEFAULT 96.0
 #define MIN_ZOOM 0.2
-#define RESIZE_MARGIN 6.0
+#define RESIZE_MARGIN 10.0
 #define MAX_SAFE_RENDER_DPI 720 // max dpi at which PDF bg's get rendered
 
 #define VBOX_MAIN_NITEMS 5 // number of interface items in vboxMain
@@ -241,12 +241,18 @@ typedef struct Journal {
   int last_attach_no; // for naming of attached backgrounds
 } Journal;
 
+// snapping parameters for aspect ratio preserving selection resize
+#define RESIZE_SNAP_TOLERANCE1 1.05
+#define RESIZE_SNAP_TOLERANCE2 1.3
+#define RESIZE_SNAP_MARGIN 20.0
+
 typedef struct Selection {
   int type;  // ITEM_SELECTRECT, ITEM_MOVESEL_VERT, ITEM_SELECTREGION
   BBox bbox; // the rectangle bbox of the selection
   struct Layer *layer; // the layer on which the selection lives
   double anchor_x, anchor_y, last_x, last_y; // for selection motion
   gboolean resizing_top, resizing_bottom, resizing_left, resizing_right; // for selection resizing
+  int resizing_aspect_lock_mode; // which way aspect-preserving resize is 'snapping'
   double new_x1, new_x2, new_y1, new_y2; // for selection resizing
   GnomeCanvasItem *canvas_item; // if the selection box is on screen 
   GList *items; // the selected items (a list of struct Item)
@@ -271,6 +277,7 @@ typedef struct UIData {
   gboolean touch_as_handtool; // always map touch device to hand tool?
   gboolean pen_disables_touch; // pen proximity should disable touch device?
   gboolean in_proximity;
+  gboolean fix_stroke_origin; // fix for devices with bad button-press coords?
   char *device_for_touch;
   int which_mouse_button; // the mouse button drawing the current path
   int which_unswitch_button; // if button_switch_mapping, the mouse button that switched the mapping
@@ -287,7 +294,12 @@ typedef struct UIData {
   gboolean allow_xinput; // allow use of xinput ?
   gboolean discard_corepointer; // discard core pointer events in XInput mode
   gboolean pressure_sensitivity; // use pen pressure to control stroke width?
+  gboolean speed_sensitivity; // use pen speed to control stroke width?
   double width_minimum_multiplier, width_maximum_multiplier; // calibration for pressure sensitivity
+  double speed_min_width_threshold; // speed threshold for min width
+  double *speed_refpt; // ref point for current speed calculation
+  guint32 speed_reftime; // time of reference event for speed calculation
+  double speed_avg, speed_last; // averaged & instant speed of current stroke
   gboolean is_corestroke; // this stroke is painted with core pointer
   gboolean saved_is_corestroke;
   GdkDevice *stroke_device; // who's painting this stroke
