@@ -213,6 +213,7 @@ create_winMain (void)
   GtkWidget *pen_and_touch_menu;
   GtkWidget *optionsButtonMappings;
   GtkWidget *optionsPressureSensitive;
+  GtkWidget *optionsSpeedSensitive;
   GtkWidget *optionsButtonSwitchMapping;
   GtkWidget *optionsTouchAsHandTool;
   GtkWidget *optionsPenDisablesTouch;
@@ -1236,6 +1237,10 @@ create_winMain (void)
   optionsPressureSensitive = gtk_check_menu_item_new_with_mnemonic (_("_Pressure sensitivity"));
   gtk_widget_show (optionsPressureSensitive);
   gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsPressureSensitive);
+
+  optionsSpeedSensitive = gtk_check_menu_item_new_with_mnemonic (_("_Speed sensitivity"));
+  gtk_widget_show (optionsSpeedSensitive);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsSpeedSensitive);
 
   optionsButtonSwitchMapping = gtk_check_menu_item_new_with_mnemonic (_("Buttons Switch Mappings"));
   gtk_widget_show (optionsButtonSwitchMapping);
@@ -2371,6 +2376,9 @@ create_winMain (void)
   g_signal_connect ((gpointer) optionsPressureSensitive, "activate",
                     G_CALLBACK (on_optionsPressureSensitive_activate),
                     NULL);
+  g_signal_connect ((gpointer) optionsSpeedSensitive, "activate",
+                    G_CALLBACK (on_optionsSpeedSensitive_activate),
+                    NULL);
   g_signal_connect ((gpointer) optionsButtonSwitchMapping, "toggled",
                     G_CALLBACK (on_optionsButtonsSwitchMappings_activate),
                     NULL);
@@ -2812,6 +2820,7 @@ create_winMain (void)
   GLADE_HOOKUP_OBJECT (winMain, pen_and_touch_menu, "pen_and_touch_menu");
   GLADE_HOOKUP_OBJECT (winMain, optionsButtonMappings, "optionsButtonMappings");
   GLADE_HOOKUP_OBJECT (winMain, optionsPressureSensitive, "optionsPressureSensitive");
+  GLADE_HOOKUP_OBJECT (winMain, optionsSpeedSensitive, "optionsSpeedSensitive");
   GLADE_HOOKUP_OBJECT (winMain, optionsButtonSwitchMapping, "optionsButtonSwitchMapping");
   GLADE_HOOKUP_OBJECT (winMain, optionsTouchAsHandTool, "optionsTouchAsHandTool");
   GLADE_HOOKUP_OBJECT (winMain, optionsPenDisablesTouch, "optionsPenDisablesTouch");

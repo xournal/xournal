@@ -294,7 +294,12 @@ typedef struct UIData {
   gboolean allow_xinput; // allow use of xinput ?
   gboolean discard_corepointer; // discard core pointer events in XInput mode
   gboolean pressure_sensitivity; // use pen pressure to control stroke width?
+  gboolean speed_sensitivity; // use pen speed to control stroke width?
   double width_minimum_multiplier, width_maximum_multiplier; // calibration for pressure sensitivity
+  double speed_min_width_threshold; // speed threshold for min width
+  double *speed_refpt; // ref point for current speed calculation
+  guint32 speed_reftime; // time of reference event for speed calculation
+  double speed_avg, speed_last; // averaged & instant speed of current stroke
   gboolean is_corestroke; // this stroke is painted with core pointer
   gboolean saved_is_corestroke;
   GdkDevice *stroke_device; // who's painting this stroke

@@ -1,12 +1,14 @@
 This version:
   - keep selection in clipboard after exiting
   - config option to fix unreliable stroke origin (Lenovo AES pen issues)
-     (use in conjunction with xsetwacom to set RawSample = 1 or 2 until
-      wacom driver fix is committed).
+     (use in conjunction with xsetwacom, set RawSample = 1 or 2)
   - added Russian translation (Igor Nedoboy)
   - selection resize snaps to preserve aspect ratio
+     (resize box is red while snapped to aspect-preserving)
   - text edition box background color matches paper if page has a solid background
   - control+mousewheel scrolls in/out (only if XInput option enabled)
+  - speed-sensitive pen width option ("fountain pen" effect) (Massoud Babaie-Zadeh)
+     (under Options -> Pen and Touch)
 
 Version 0.4.8.2016 (July 20, 2017 bugfix release):
  * Bug fixes:

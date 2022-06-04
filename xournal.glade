@@ -1598,6 +1598,16 @@
 			  </child>
 
 			  <child>
+			    <widget class="GtkCheckMenuItem" id="optionsSpeedSensitive">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">_Speed sensitivity</property>
+			      <property name="use_underline">True</property>
+			      <property name="active">False</property>
+			      <signal name="activate" handler="on_optionsSpeedSensitive_activate" last_modification_time="Fri, 21 Mar 2008 19:00:32 GMT"/>
+			    </widget>
+			  </child>
+
+			  <child>
 			    <widget class="GtkCheckMenuItem" id="optionsButtonSwitchMapping">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">Buttons Switch Mappings</property>
