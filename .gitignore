@@ -23,3 +23,5 @@
 /stamp-h1
 Makefile
 Makefile.in
+/src/win32/xournal.res
+/src/xournal.exe
