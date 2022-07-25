@@ -1,1 +1,3 @@
+#include <winuser.h>
 id ICON "xournal.ico"
+1 RT_MANIFEST "force_utf8.xml"
