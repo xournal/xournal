@@ -18,6 +18,8 @@ AC_SEARCH_LIBS([hypot],[m])
 AC_SEARCH_LIBS([gzprintf],[z])
 AC_SEARCH_LIBS([XUngrabButton],[X11])
 
+ifdef([PKG_CHECK_MODULES], [[]], [m4_fatal([Module checker (pkg-config or pkgconf) is required but does not seem to be installed.])])
+
 pkg_modules="gtk+-2.0 >= 2.10.0 libgnomecanvas-2.0 >= 2.4.0 poppler-glib >= 0.5.4 pangoft2 >= 1.0"
 PKG_CHECK_MODULES(PACKAGE,[$pkg_modules])
 CFLAGS="$PACKAGE_CFLAGS $CFLAGS"
