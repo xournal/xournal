@@ -632,9 +632,9 @@ void start_text(GdkEvent *event, struct Item *item)
     item->text = NULL;
     item->canvas_item = NULL;
     item->bbox.left = pt[0];
-    item->bbox.top = pt[1];
+    item->bbox.top = pt[1] - ui.font_size/2;
     item->bbox.right = ui.cur_page->width;
-    item->bbox.bottom = pt[1]+100.;
+    item->bbox.bottom = item->bbox.top + ui.font_size;
     item->font_name = g_strdup(ui.font_name);
     item->font_size = ui.font_size;
     g_memmove(&(item->brush), ui.cur_brush, sizeof(struct Brush));

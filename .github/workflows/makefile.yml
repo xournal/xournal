@@ -1,0 +1,45 @@
+name: Makefile ACI
+
+on:
+  push:
+    branches: [ "sf-bug-205-position-01" ]
+    
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: show-env
+      env:
+        EVENT_CONTEXT: ${{ toJSON(github.event) }}
+      run: |
+          echo $EVENT_CONTEXT
+    
+    - name: autogen
+      run: ./autogen.sh
+
+    - name: configure
+      run: ./configure
+
+    - name: Install dependencies
+      run: make
+
+    - name: Run check
+      run: make check
+
+    - name: Run distcheck
+      run: make distcheck
