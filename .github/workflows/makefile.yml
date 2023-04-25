@@ -3,10 +3,6 @@ name: Makefile ACI
 on:
   push:
     branches: [ "sf-bug-205-position-01" ]
-  pull_request:
-    branches: [ "none" ]
-  workflow_run:
-    branches: [ "sf-bug-205-position-01" ]
 
 jobs:
   build:
