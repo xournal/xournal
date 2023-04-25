@@ -3,6 +3,9 @@ name: Makefile ACI
 on:
   push:
     branches: [ "sf-bug-205-position-01" ]
+    
+  workflow_dispatch:
+      { }
 
 jobs:
   build:
