@@ -1,0 +1,32 @@
+name: Makefile ACI
+
+on:
+  push:
+    branches: [ "sf-bug-205-position-01" ]
+  pull_request:
+    branches: [ "none" ]
+  workflow_run:
+    branches: [ "sf-bug-205-position-01" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: autogen
+      run: ./autogen.sh
+
+    - name: configure
+      run: ./configure
+
+    - name: Install dependencies
+      run: make
+
+    - name: Run check
+      run: make check
+
+    - name: Run distcheck
+      run: make distcheck
